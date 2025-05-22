@@ -5,3 +5,9 @@ python-dotenv
 google-generativeai
 langgraph
 langchain
+
+langchain-core
+
+# Google Gemini (PaLM) Integration
+langchain-google-genai
+google-generativeai

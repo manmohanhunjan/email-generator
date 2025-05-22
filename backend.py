@@ -1,14 +1,13 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import os
-import google.generativeai as genai
-import langgraph
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import StateGraph
 from dotenv import load_dotenv
 
 load_dotenv()
-GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
+
+model = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite")
+
 app = FastAPI()
 
 class EmailRequest(BaseModel):
@@ -18,7 +17,6 @@ class EmailRequest(BaseModel):
     context: str
 
 def generate_email_gemini(language: str, tone: str, context: str):
-    model = genai.GenerativeModel("gemini-2.0-flash-lite")
 
     prompt = f"""
     Generate an email in {language} with a  {tone} tone. Context: {context}
@@ -26,8 +24,8 @@ def generate_email_gemini(language: str, tone: str, context: str):
     Subject: //subject
     Body: //body
 """
-    response = model.generate_content(prompt)
-    response_text = response.text.strip()
+    response = model.invoke(prompt)
+    response_text = response.content.strip()
 
     subject, body = response_text.split("Body:", 1) if "Body:" in response_text else ("No Subject", response_text)
     subject = subject.replace("Subject: ", "")
